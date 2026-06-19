@@ -1,0 +1,299 @@
+[gd_scene load_steps=2 format=3 uid="uid://e5hud00001"]
+
+[ext_resource type="Script" path="res://scripts/HUD.cs" id="1_hud"]
+
+[node name="HUD" type="CanvasLayer"]
+layer = 1
+process_mode = 3
+script = ExtResource("1_hud")
+
+[node name="GameOverOverlay" type="ColorRect" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.45)
+
+[node name="ControlSetupOverlay" type="ColorRect" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.08, 0.08, 0.12, 0.92)
+
+[node name="CenterContainer" type="CenterContainer" parent="ControlSetupOverlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="ControlSetupOverlay/CenterContainer"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="ControlSetupOverlay/CenterContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
+
+[node name="VBox" type="VBoxContainer" parent="ControlSetupOverlay/CenterContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="TitleLabel" type="Label" parent="ControlSetupOverlay/CenterContainer/PanelContainer/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "조작 방식 선택"
+horizontal_alignment = 1
+
+[node name="DescLabel" type="Label" parent="ControlSetupOverlay/CenterContainer/PanelContainer/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "게임을 시작하기 전에 조작 방식을 선택해 주세요."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="ControlSetupOverlay/CenterContainer/PanelContainer/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SetupJoystickButton" type="Button" parent="ControlSetupOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/ButtonRow"]
+custom_minimum_size = Vector2(240, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "조이스틱"
+
+[node name="SetupScreenDragButton" type="Button" parent="ControlSetupOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/ButtonRow"]
+custom_minimum_size = Vector2(240, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "화면 드래그"
+
+[node name="PauseOverlay" type="ColorRect" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0.45)
+
+[node name="CenterContainer" type="CenterContainer" parent="PauseOverlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="PauseOverlay/CenterContainer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PauseOverlay/CenterContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="PauseMenu" type="VBoxContainer" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer/PauseMenu"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "일시정지"
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer/PauseMenu"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "다시 시작"
+
+[node name="RestartButton" type="Button" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer/PauseMenu"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "재시작"
+
+[node name="SettingsButton" type="Button" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer/PauseMenu"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "설정"
+
+[node name="SettingsPanel" type="VBoxContainer" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SettingsTitleLabel" type="Label" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer/SettingsPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "설정"
+horizontal_alignment = 1
+
+[node name="ControlModeLabel" type="Label" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer/SettingsPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "조작 방식"
+
+[node name="JoystickButton" type="Button" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer/SettingsPanel"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+toggle_mode = true
+text = "조이스틱"
+
+[node name="ScreenDragButton" type="Button" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer/SettingsPanel"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+toggle_mode = true
+text = "화면 드래그"
+
+[node name="ThemeLabel" type="Label" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer/SettingsPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "테마"
+
+[node name="DarkThemeButton" type="Button" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer/SettingsPanel"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+toggle_mode = true
+text = "다크"
+
+[node name="LightThemeButton" type="Button" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer/SettingsPanel"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+toggle_mode = true
+text = "라이트"
+
+[node name="SettingsBackButton" type="Button" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer/SettingsPanel"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "뒤로"
+
+[node name="TopBar" type="MarginContainer" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 96.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+
+[node name="TimerLabel" type="Label" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -72.0
+offset_top = 24.0
+offset_right = 72.0
+offset_bottom = 60.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 28
+text = "0:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBox" type="HBoxContainer" parent="TopBar"]
+layout_mode = 2
+
+[node name="LeftVBox" type="VBoxContainer" parent="TopBar/HBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ScoreLabel" type="Label" parent="TopBar/HBox/LeftVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Score: 0"
+
+[node name="HealthLabel" type="Label" parent="TopBar/HBox/LeftVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "HP: 5/5"
+
+[node name="Spacer" type="Control" parent="TopBar/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PauseButton" type="Button" parent="TopBar/HBox"]
+custom_minimum_size = Vector2(52, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "||"
+
+[node name="BottomBar" type="MarginContainer" parent="."]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -88.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="BottomBar"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ExpRow" type="HBoxContainer" parent="BottomBar/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LevelLabel" type="Label" parent="BottomBar/VBox/ExpRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Lv.1"
+
+[node name="ExpLabel" type="Label" parent="BottomBar/VBox/ExpRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 22
+text = "0/10"
+horizontal_alignment = 2
+
+[node name="ExpBar" type="ProgressBar" parent="BottomBar/VBox"]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+max_value = 10.0
+value = 0.0
+show_percentage = false
+
+[node name="GameOverLabel" type="Label" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -40.0
+offset_right = 200.0
+offset_bottom = 40.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 24
+text = "Game Over"
+horizontal_alignment = 1
+vertical_alignment = 1

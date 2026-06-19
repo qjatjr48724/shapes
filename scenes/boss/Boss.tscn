@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://bossshape01"]
+
+[ext_resource type="Script" path="res://scripts/Boss.cs" id="1_boss"]
+[ext_resource type="Script" path="res://scripts/HealthBar2D.cs" id="2_healthbar"]
+[ext_resource type="PackedScene" uid="uid://bossbullet01" path="res://scenes/boss/BossBullet.tscn" id="3_bossbullet"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_boss"]
+size = Vector2(72, 72)
+
+[node name="Boss" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_boss")
+BossBulletScene = ExtResource("3_bossbullet")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_boss")
+
+[node name="HealthBar" type="Node2D" parent="."]
+script = ExtResource("2_healthbar")
+BarWidth = 72.0
+OffsetY = -48.0
