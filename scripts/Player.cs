@@ -20,13 +20,14 @@ public partial class Player : CharacterBody2D
     public int CurrentHealth { get; private set; }
     public int MaxHealth { get; private set; }
     public PlayerAbilities Abilities { get; } = new();
-    public float CompanionFireInterval => GameConstants.GetCompanionFireInterval(_fireInterval);
-
     public float GetCompanionFireInterval(AbilityKind kind)
     {
-        return kind == AbilityKind.HomingProjectile
-            ? GameConstants.HomingFireInterval
-            : CompanionFireInterval;
+        return kind switch
+        {
+            AbilityKind.HomingProjectile => GameConstants.HomingFireInterval,
+            AbilityKind.StraightProjectile or AbilityKind.DiagonalProjectile => GameConstants.CompanionFireInterval,
+            _ => GameConstants.CompanionFireInterval,
+        };
     }
 
     private float _moveSpeed;

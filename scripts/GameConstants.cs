@@ -11,8 +11,8 @@ public static class GameConstants
     public const int ScorePerKill = 1;
     public const int BulletDamage = 1;
 
-    public const float PlayerMoveSpeed = 320f;
-    public const float PlayerFireInterval = 0.35f;
+    public const float PlayerMoveSpeed = 330f;
+    public const float PlayerFireInterval = 1f;
     public const float PlayerRadius = 20f;
     public const float CompanionRadius = 11f;
 
@@ -34,7 +34,7 @@ public static class GameConstants
     public const float SpawnIntervalDecay = 0.018f;
     public const float SpawnWarmupDuration = 25f;
 
-    public const float BulletSpeed = 500f;
+    public const float BulletSpeed = 330f;
     public const float BulletLifetime = 3f;
 
     public static readonly Vector2 PlayerShootDirection = Vector2.Up;
@@ -51,9 +51,10 @@ public static class GameConstants
     public const float MinFireInterval = 0.12f;
     public const int BulletDamagePerLevel = 1;
 
-    public const int AbilitySelectLevelInterval = 5;
+    public const int AbilitySelectLevelInterval = 3;
     public const float CompanionDamageRatio = 0.5f;
-    public const float CompanionFireRateRatio = 0.5f;
+    public const float CompanionFireRatePerSecond = 0.5f;
+    public const float CompanionFireInterval = 1f / CompanionFireRatePerSecond;
     public const float HomingDamageRatio = 0.33f;
     public const float HomingFireRatePerSecond = 0.4f;
     public const float HomingFireInterval = 1f / HomingFireRatePerSecond;
@@ -151,11 +152,6 @@ public static class GameConstants
         }
 
         return baseExp;
-    }
-
-    public static float GetCompanionFireInterval(float mainFireInterval)
-    {
-        return mainFireInterval / CompanionFireRateRatio;
     }
 
     public static Vector2 GetCompanionFlankOffset(int index, int totalCount)

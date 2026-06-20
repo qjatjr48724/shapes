@@ -128,7 +128,7 @@ public static class AbilityRoller
                 Rarity = rarity,
                 Amount = GetProjectileAmount(rarity),
                 Title = "직진형 발사체",
-                Description = $"직선 탄환을 발사하는 발사체 {GetProjectileAmount(rarity)}개 추가\n",
+                Description = $"직선 탄환을 발사하는 발사체 {GetProjectileAmount(rarity)}개 추가\n(본체 공격력의 50%, 초당 0.5발)",
             },
             AbilityKind.DiagonalProjectile => new AbilityChoice
             {
@@ -136,7 +136,7 @@ public static class AbilityRoller
                 Rarity = rarity,
                 Amount = GetProjectileAmount(rarity),
                 Title = "사선형 발사체",
-                Description = $"사선 탄환을 발사하는 발사체 {GetProjectileAmount(rarity)}개 추가\n",
+                Description = $"사선 탄환을 발사하는 발사체 {GetProjectileAmount(rarity)}개 추가\n(본체 공격력의 50%, 초당 0.5발)",
             },
             AbilityKind.HomingProjectile => new AbilityChoice
             {
