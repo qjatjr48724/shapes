@@ -1,7 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://d3m9player01"]
+[gd_scene load_steps=7 format=3 uid="uid://d3m9player01"]
 
 [ext_resource type="Script" path="res://scripts/Player.cs" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://bqx7bullet01" path="res://scenes/bullet/Bullet.tscn" id="2_bullet"]
+[ext_resource type="PackedScene" uid="uid://homingbullet01" path="res://scenes/bullet/HomingBullet.tscn" id="3_homing"]
+[ext_resource type="PackedScene" uid="uid://companion01" path="res://scenes/player/Companion.tscn" id="4_companion"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 20.0
@@ -14,6 +16,8 @@ collision_layer = 1
 collision_mask = 0
 script = ExtResource("1_player")
 BulletScene = ExtResource("2_bullet")
+HomingBulletScene = ExtResource("3_homing")
+CompanionScene = ExtResource("4_companion")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_body")
@@ -25,3 +29,5 @@ monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
 shape = SubResource("CircleShape2D_hurt")
+
+[node name="Companions" type="Node2D" parent="."]

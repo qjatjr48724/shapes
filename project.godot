@@ -66,10 +66,6 @@ restart={
 ]
 }
 
-[input_devices]
-
-pointing/emulate_mouse_from_touch=true
-
 [layer_names]
 
 2d_physics/layer_1="player"

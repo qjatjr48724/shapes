@@ -118,10 +118,10 @@ public partial class Enemy : CharacterBody2D
     {
         GameManager.Instance.AddScore(GameConstants.ScorePerKill);
         var player = GetTree().GetFirstNodeInGroup("player") as Player;
-        var exp = _kind == EnemyKind.Pentagon
+        var baseExp = _kind == EnemyKind.Pentagon
             ? Mathf.RoundToInt(GameConstants.ExpPerKill * GameConstants.PentagonExpMultiplier)
             : GameConstants.ExpPerKill;
-        player?.AddExp(exp);
+        player?.AddExp(GameConstants.RollExpReward(baseExp));
         QueueFree();
     }
 

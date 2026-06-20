@@ -7,6 +7,7 @@ public partial class HUD : CanvasLayer
     private const string PauseMenuPath = "PauseOverlay/CenterContainer/PanelContainer/MarginContainer/PauseMenu";
     private const string SettingsPanelPath = "PauseOverlay/CenterContainer/PanelContainer/MarginContainer/SettingsPanel";
     private const string ControlSetupPath = "ControlSetupOverlay/CenterContainer/PanelContainer/MarginContainer/VBox";
+    private const string AbilitySelectCardsPath = "AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow";
 
     private Label _scoreLabel = null!;
     private Label _healthLabel = null!;
@@ -25,11 +26,15 @@ public partial class HUD : CanvasLayer
     private Button _lightThemeButton = null!;
     private Label _gameOverLabel = null!;
     private ColorRect _gameOverOverlay = null!;
+    private ColorRect _abilitySelectOverlay = null!;
+    private readonly AbilityChoice?[] _abilityChoices = new AbilityChoice?[3];
+    private Player? _abilitySelectPlayer;
 
     private Player? _player;
 
     public override void _Ready()
     {
+        AddToGroup("hud");
         _scoreLabel = GetNode<Label>("TopBar/HBox/LeftVBox/ScoreLabel");
         _healthLabel = GetNode<Label>("TopBar/HBox/LeftVBox/HealthLabel");
         _timerLabel = GetNode<Label>("TimerLabel");
@@ -47,6 +52,7 @@ public partial class HUD : CanvasLayer
         _lightThemeButton = GetNode<Button>($"{SettingsPanelPath}/LightThemeButton");
         _gameOverLabel = GetNode<Label>("GameOverLabel");
         _gameOverOverlay = GetNode<ColorRect>("GameOverOverlay");
+        _abilitySelectOverlay = GetNode<ColorRect>("AbilitySelectOverlay");
 
         ApplySafeAreaMargins();
 
@@ -61,6 +67,9 @@ public partial class HUD : CanvasLayer
         _screenDragButton.Pressed += OnScreenDragPressed;
         _darkThemeButton.Pressed += OnDarkThemePressed;
         _lightThemeButton.Pressed += OnLightThemePressed;
+        GetNode<Button>($"{AbilitySelectCardsPath}/Card0/VBox/SelectButton").Pressed += () => OnAbilitySelected(0);
+        GetNode<Button>($"{AbilitySelectCardsPath}/Card1/VBox/SelectButton").Pressed += () => OnAbilitySelected(1);
+        GetNode<Button>($"{AbilitySelectCardsPath}/Card2/VBox/SelectButton").Pressed += () => OnAbilitySelected(2);
 
         GameManager.Instance.ScoreChanged += OnScoreChanged;
         GameManager.Instance.GameOver += OnGameOver;
@@ -85,6 +94,7 @@ public partial class HUD : CanvasLayer
         _gameOverLabel.Visible = false;
         _gameOverOverlay.Visible = false;
         _pauseOverlay.Visible = false;
+        _abilitySelectOverlay.Visible = false;
 
         if (!InputSettings.Instance.IsControlConfigured)
         {
@@ -238,6 +248,7 @@ public partial class HUD : CanvasLayer
         var palette = ThemeSettings.Instance.Palette;
         _pauseOverlay.Color = palette.PauseOverlay;
         _controlSetupOverlay.Color = palette.SetupOverlay;
+        _abilitySelectOverlay.Color = palette.SetupOverlay;
         _gameOverOverlay.Color = palette.GameOverOverlay;
         ApplyHudTextColor(_scoreLabel, palette.HudText);
         ApplyHudTextColor(_healthLabel, palette.HudText);
@@ -248,6 +259,7 @@ public partial class HUD : CanvasLayer
         ApplyLabelsInContainer(_pauseMenu, palette.HudText);
         ApplyLabelsInContainer(_settingsPanel, palette.HudText);
         ApplyLabelsInContainer(GetNode<VBoxContainer>($"{ControlSetupPath}"), palette.HudText);
+        ApplyLabelsInContainer(GetNode<VBoxContainer>("AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox"), palette.HudText);
 
         var expBackground = new StyleBoxFlat { BgColor = palette.ExpBarBackground };
         var expFill = new StyleBoxFlat { BgColor = palette.ExpBarFill };
@@ -337,6 +349,12 @@ public partial class HUD : CanvasLayer
             return;
         }
 
+        if (GameManager.Instance.IsAbilitySelectActive)
+        {
+            _pauseOverlay.Visible = false;
+            return;
+        }
+
         _pauseOverlay.Visible = isPaused;
 
         if (isPaused)
@@ -350,8 +368,85 @@ public partial class HUD : CanvasLayer
     {
         _pauseButton.Disabled = true;
         _controlSetupOverlay.Visible = false;
+        _abilitySelectOverlay.Visible = false;
         _pauseOverlay.Visible = false;
         _gameOverLabel.Visible = true;
         _gameOverOverlay.Visible = true;
+    }
+
+    public void ShowAbilitySelection(Player player, AbilityChoice[] choices, string? title = null, string? description = null)
+    {
+        _abilitySelectPlayer = player;
+        _abilityChoices[0] = choices.Length > 0 ? choices[0] : null;
+        _abilityChoices[1] = choices.Length > 1 ? choices[1] : null;
+        _abilityChoices[2] = choices.Length > 2 ? choices[2] : null;
+
+        GetNode<Label>("AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/TitleLabel").Text =
+            title ?? "능력 선택";
+        GetNode<Label>("AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/DescLabel").Text =
+            description ?? (choices.Length > 1 ? "능력 하나를 선택하세요." : "보상 능력을 선택하세요.");
+
+        for (var i = 0; i < 3; i++)
+        {
+            UpdateAbilityCard(i, _abilityChoices[i]);
+        }
+
+        _pauseButton.Disabled = true;
+        _abilitySelectOverlay.Visible = true;
+        GameManager.Instance.SetAbilitySelectActive(true);
+        GameManager.Instance.SetPaused(true);
+    }
+
+    private void UpdateAbilityCard(int index, AbilityChoice? choice)
+    {
+        var cardRoot = $"{AbilitySelectCardsPath}/Card{index}/VBox";
+        var card = GetNode<Control>($"{AbilitySelectCardsPath}/Card{index}");
+        if (choice == null)
+        {
+            card.Visible = false;
+            return;
+        }
+
+        card.Visible = true;
+        var icon = GetNode<AbilityIcon>($"{cardRoot}/Icon");
+        icon.SetKind(choice.Kind);
+
+        var rarityLabel = GetNode<Label>($"{cardRoot}/RarityLabel");
+        rarityLabel.Text = choice.RarityLabel;
+        rarityLabel.AddThemeColorOverride("font_color", choice.RarityColor);
+
+        GetNode<Label>($"{cardRoot}/TitleLabel").Text = choice.Title;
+        GetNode<Label>($"{cardRoot}/DescLabel").Text = choice.Description;
+    }
+
+    private void OnAbilitySelected(int index)
+    {
+        if (_abilitySelectPlayer == null || index < 0 || index >= _abilityChoices.Length)
+        {
+            return;
+        }
+
+        var choice = _abilityChoices[index];
+        if (choice == null)
+        {
+            return;
+        }
+
+        _abilitySelectPlayer.ApplyAbilityChoice(choice);
+        HideAbilitySelection();
+    }
+
+    private void HideAbilitySelection()
+    {
+        var player = _abilitySelectPlayer;
+        _abilitySelectOverlay.Visible = false;
+        _abilitySelectPlayer = null;
+        _abilityChoices[0] = null;
+        _abilityChoices[1] = null;
+        _abilityChoices[2] = null;
+        _pauseButton.Disabled = false;
+        GameManager.Instance.SetAbilitySelectActive(false);
+        GameManager.Instance.ForceResume();
+        player?.OnAbilitySelectionClosed();
     }
 }

@@ -14,6 +14,7 @@ public static class GameConstants
     public const float PlayerMoveSpeed = 320f;
     public const float PlayerFireInterval = 0.35f;
     public const float PlayerRadius = 20f;
+    public const float CompanionRadius = 11f;
 
     public const float EnemyStartSpeed = 90f;
     public const float EnemySpeedIncreaseInterval = 6f;
@@ -40,11 +41,26 @@ public static class GameConstants
     public static readonly Vector2 EnemyMoveDirection = Vector2.Down;
 
     public const int ExpPerKill = 5;
+    // public const float BonusExpChance = 0.05f;
+    public const float BonusExpChance = 1f;
+    public const int BonusExpMultiplier = 5;
+    // public const int BonusExpMultiplier = 3;
     public const int BaseExpToLevel = 18;
     public const float MoveSpeedPerLevel = 20f;
     public const float FireIntervalReductionPerLevel = 0.025f;
     public const float MinFireInterval = 0.12f;
     public const int BulletDamagePerLevel = 1;
+
+    public const int AbilitySelectLevelInterval = 5;
+    public const float CompanionDamageRatio = 0.5f;
+    public const float CompanionFireRateRatio = 0.5f;
+    public const float HomingDamageRatio = 0.33f;
+    public const float HomingFireRatePerSecond = 0.4f;
+    public const float HomingFireInterval = 1f / HomingFireRatePerSecond;
+    public const float HomingBulletSpeed = 420f;
+    public const float DiagonalShotAngleDegrees = 28f;
+    public const float CompanionFlankGap = 8f;
+    public const float CompanionFlankSpacing = 18f;
 
     public const float TouchDragDeadzonePixels = 16f;
     public const float TouchDragFullSpeedDistancePixels = 120f;
@@ -125,5 +141,33 @@ public static class GameConstants
     public static int GetBossExp(BossKind kind)
     {
         return kind == BossKind.FinalBoss ? BossExpFinal : BossExpMid;
+    }
+
+    public static int RollExpReward(int baseExp)
+    {
+        if (GD.Randf() < BonusExpChance)
+        {
+            return baseExp * BonusExpMultiplier;
+        }
+
+        return baseExp;
+    }
+
+    public static float GetCompanionFireInterval(float mainFireInterval)
+    {
+        return mainFireInterval / CompanionFireRateRatio;
+    }
+
+    public static Vector2 GetCompanionFlankOffset(int index, int totalCount)
+    {
+        if (totalCount <= 0)
+        {
+            return Vector2.Zero;
+        }
+
+        var isLeft = index % 2 == 0;
+        var layer = index / 2;
+        var distance = PlayerRadius + CompanionFlankGap + CompanionRadius + layer * CompanionFlankSpacing;
+        return new Vector2(isLeft ? -distance : distance, 0f);
     }
 }

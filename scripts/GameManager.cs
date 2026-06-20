@@ -11,6 +11,7 @@ public partial class GameManager : Node
     public bool IsGameOver { get; private set; }
     public bool IsPaused { get; private set; }
     public bool IsBossActive { get; private set; }
+    public bool IsAbilitySelectActive { get; private set; }
 
     [Signal]
     public delegate void ScoreChangedEventHandler(int newScore);
@@ -51,6 +52,7 @@ public partial class GameManager : Node
         IsGameOver = false;
         IsPaused = false;
         IsBossActive = false;
+        IsAbilitySelectActive = false;
         EmitSignal(SignalName.ScoreChanged, Score);
     }
 
@@ -73,13 +75,14 @@ public partial class GameManager : Node
         }
 
         SetPaused(false);
+        IsAbilitySelectActive = false;
         IsGameOver = true;
         EmitSignal(SignalName.GameOver);
     }
 
     public void TogglePause()
     {
-        if (!InputSettings.Instance.IsControlConfigured)
+        if (!InputSettings.Instance.IsControlConfigured || IsAbilitySelectActive)
         {
             return;
         }
@@ -101,6 +104,11 @@ public partial class GameManager : Node
 
         IsPaused = paused;
         EmitSignal(SignalName.PauseChanged, paused);
+    }
+
+    public void SetAbilitySelectActive(bool active)
+    {
+        IsAbilitySelectActive = active;
     }
 
     public void ForceResume()

@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://e5hud00001"]
+[gd_scene load_steps=3 format=3 uid="uid://e5hud00001"]
 
 [ext_resource type="Script" path="res://scripts/HUD.cs" id="1_hud"]
+[ext_resource type="Script" path="res://scripts/AbilityIcon.cs" id="2_abilityicon"]
 
 [node name="HUD" type="CanvasLayer"]
 layer = 1
@@ -80,6 +81,178 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
 text = "화면 드래그"
 
+[node name="AbilitySelectOverlay" type="ColorRect" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.08, 0.08, 0.12, 0.92)
+
+[node name="CenterContainer" type="CenterContainer" parent="AbilitySelectOverlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="AbilitySelectOverlay/CenterContainer"]
+custom_minimum_size = Vector2(680, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="AbilitySelectOverlay/CenterContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "능력 선택"
+horizontal_alignment = 1
+
+[node name="DescLabel" type="Label" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "능력 하나를 선택하세요."
+horizontal_alignment = 1
+
+[node name="CardsRow" type="HBoxContainer" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Card0" type="PanelContainer" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBox" type="VBoxContainer" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card0"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Icon" type="Control" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card0/VBox"]
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("2_abilityicon")
+
+[node name="RarityLabel" type="Label" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card0/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "레어"
+horizontal_alignment = 1
+
+[node name="TitleLabel" type="Label" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card0/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "능력"
+horizontal_alignment = 1
+
+[node name="DescLabel" type="Label" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card0/VBox"]
+custom_minimum_size = Vector2(180, 72)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "설명"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="SelectButton" type="Button" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card0/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "선택"
+
+[node name="Card1" type="PanelContainer" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBox" type="VBoxContainer" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card1"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Icon" type="Control" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card1/VBox"]
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("2_abilityicon")
+
+[node name="RarityLabel" type="Label" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card1/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "레어"
+horizontal_alignment = 1
+
+[node name="TitleLabel" type="Label" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card1/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "능력"
+horizontal_alignment = 1
+
+[node name="DescLabel" type="Label" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card1/VBox"]
+custom_minimum_size = Vector2(180, 72)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "설명"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="SelectButton" type="Button" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card1/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "선택"
+
+[node name="Card2" type="PanelContainer" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBox" type="VBoxContainer" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card2"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Icon" type="Control" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card2/VBox"]
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("2_abilityicon")
+
+[node name="RarityLabel" type="Label" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card2/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "레어"
+horizontal_alignment = 1
+
+[node name="TitleLabel" type="Label" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card2/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "능력"
+horizontal_alignment = 1
+
+[node name="DescLabel" type="Label" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card2/VBox"]
+custom_minimum_size = Vector2(180, 72)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "설명"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="SelectButton" type="Button" parent="AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow/Card2/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "선택"
+
 [node name="PauseOverlay" type="ColorRect" parent="."]
 visible = false
 anchors_preset = 15
@@ -122,7 +295,7 @@ horizontal_alignment = 1
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
-text = "다시 시작"
+text = "이어서"
 
 [node name="RestartButton" type="Button" parent="PauseOverlay/CenterContainer/PanelContainer/MarginContainer/PauseMenu"]
 custom_minimum_size = Vector2(0, 48)
@@ -236,7 +409,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="PauseButton" type="Button" parent="TopBar/HBox"]
-custom_minimum_size = Vector2(52, 52)
+custom_minimum_size = Vector2(52, 36)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "||"

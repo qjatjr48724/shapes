@@ -178,7 +178,12 @@ public partial class Boss : CharacterBody2D
     {
         GameManager.Instance.AddScore(GameConstants.GetBossScore(_kind));
         var player = GetTree().GetFirstNodeInGroup("player") as Player;
-        player?.AddExp(GameConstants.GetBossExp(_kind));
+        player?.AddExp(GameConstants.RollExpReward(GameConstants.GetBossExp(_kind)));
+        player?.EnqueueAbilitySelection(
+            AbilityRoller.RollThreeChoices(),
+            "보스 보상",
+            "보스 처치 보상으로 능력 하나를 선택하세요."
+        );
         GameManager.Instance.SetBossActive(false);
         QueueFree();
     }

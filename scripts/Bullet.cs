@@ -37,9 +37,14 @@ public partial class Bullet : Area2D
 
     public override void _PhysicsProcess(double delta)
     {
-        if (GameManager.Instance.IsGameOver || GameManager.Instance.IsPaused)
+        if (GameManager.Instance.IsGameOver)
         {
             QueueFree();
+            return;
+        }
+
+        if (GameManager.Instance.IsPaused)
+        {
             return;
         }
 
