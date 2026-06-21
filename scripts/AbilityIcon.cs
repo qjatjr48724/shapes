@@ -31,6 +31,26 @@ public partial class AbilityIcon : Control
                 DrawCircle(center + new Vector2(radius * 0.35f, -radius * 0.15f), radius * 0.12f, new Color(1f, 0.85f, 0.35f));
                 break;
 
+            case AbilityKind.BulletSpeedBoost:
+                DrawCircle(center + new Vector2(0, -radius * 0.1f), radius * 0.2f, new Color(0.45f, 0.8f, 1f));
+                DrawLine(center + new Vector2(0, radius * 0.35f), center + new Vector2(0, -radius * 0.55f), Colors.White, 3f);
+                DrawLine(center + new Vector2(-radius * 0.2f, -radius * 0.2f), center + new Vector2(0, -radius * 0.55f), Colors.White, 2f);
+                DrawLine(center + new Vector2(radius * 0.2f, -radius * 0.2f), center + new Vector2(0, -radius * 0.55f), Colors.White, 2f);
+                break;
+
+            case AbilityKind.BulletBounce:
+                DrawLine(center + new Vector2(-radius * 0.5f, -radius * 0.45f), center + new Vector2(-radius * 0.5f, radius * 0.45f), Colors.White, 3f);
+                DrawLine(center + new Vector2(radius * 0.5f, -radius * 0.45f), center + new Vector2(radius * 0.5f, radius * 0.45f), Colors.White, 3f);
+                DrawLine(center + new Vector2(-radius * 0.35f, 0), center + new Vector2(radius * 0.2f, -radius * 0.35f), new Color(0.45f, 0.8f, 1f), 3f);
+                DrawLine(center + new Vector2(radius * 0.2f, -radius * 0.35f), center + new Vector2(radius * 0.45f, 0), new Color(0.45f, 0.8f, 1f), 3f);
+                break;
+
+            case AbilityKind.BulletPierce:
+                DrawLine(center + new Vector2(-radius * 0.55f, 0), center + new Vector2(radius * 0.55f, 0), new Color(0.45f, 0.8f, 1f), 3f);
+                DrawLine(center + new Vector2(-radius * 0.15f, -radius * 0.2f), center + new Vector2(radius * 0.35f, -radius * 0.2f), Colors.White, 2.5f);
+                DrawLine(center + new Vector2(-radius * 0.15f, radius * 0.2f), center + new Vector2(radius * 0.35f, radius * 0.2f), Colors.White, 2.5f);
+                break;
+
             default:
                 DrawCircle(center, radius * 0.35f, new Color(0.95f, 0.35f, 0.35f));
                 DrawLine(center + new Vector2(-radius * 0.35f, 0), center + new Vector2(radius * 0.35f, 0), Colors.White, 3f);

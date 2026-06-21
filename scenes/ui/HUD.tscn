@@ -367,7 +367,7 @@ text = "뒤로"
 [node name="TopBar" type="MarginContainer" parent="."]
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 96.0
+offset_bottom = 200.0
 grow_horizontal = 2
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
@@ -390,27 +390,49 @@ vertical_alignment = 1
 [node name="HBox" type="HBoxContainer" parent="TopBar"]
 layout_mode = 2
 
-[node name="LeftVBox" type="VBoxContainer" parent="TopBar/HBox"]
+[node name="StatsPanel" type="PanelContainer" parent="TopBar/HBox"]
 layout_mode = 2
-theme_override_constants/separation = 8
 
-[node name="ScoreLabel" type="Label" parent="TopBar/HBox/LeftVBox"]
+[node name="MarginContainer" type="MarginContainer" parent="TopBar/HBox/StatsPanel"]
+layout_mode = 2
+
+[node name="LeftVBox" type="VBoxContainer" parent="TopBar/HBox/StatsPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ScoreLabel" type="Label" parent="TopBar/HBox/StatsPanel/MarginContainer/LeftVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "Score: 0"
 
-[node name="HealthLabel" type="Label" parent="TopBar/HBox/LeftVBox"]
+[node name="HealthLabel" type="Label" parent="TopBar/HBox/StatsPanel/MarginContainer/LeftVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "HP: 5/5"
+theme_override_font_sizes/font_size = 22
+text = "HP 5/5"
+
+[node name="AttackLabel" type="Label" parent="TopBar/HBox/StatsPanel/MarginContainer/LeftVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "공격력 1"
+
+[node name="FireRateLabel" type="Label" parent="TopBar/HBox/StatsPanel/MarginContainer/LeftVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "공격속도 1.0/s"
+
+[node name="MoveSpeedLabel" type="Label" parent="TopBar/HBox/StatsPanel/MarginContainer/LeftVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "이동속도 330"
 
 [node name="Spacer" type="Control" parent="TopBar/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="PauseButton" type="Button" parent="TopBar/HBox"]
-custom_minimum_size = Vector2(52, 36)
+custom_minimum_size = Vector2(52, 52)
 layout_mode = 2
+size_flags_vertical = 0
 theme_override_font_sizes/font_size = 22
 text = "||"
 
@@ -452,6 +474,21 @@ layout_mode = 2
 max_value = 10.0
 value = 0.0
 show_percentage = false
+
+[node name="DevLevelUpButton" type="Button" parent="."]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -112.0
+offset_top = -168.0
+offset_right = -24.0
+offset_bottom = -96.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 18
+text = "LV+1"
 
 [node name="GameOverLabel" type="Label" parent="."]
 visible = false

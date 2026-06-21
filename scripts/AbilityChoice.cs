@@ -10,13 +10,26 @@ public class AbilityChoice
     public string Title { get; init; } = string.Empty;
     public string Description { get; init; } = string.Empty;
 
-    public string RarityLabel => Rarity switch
+    public string RarityLabel
     {
-        AbilityRarity.Hidden => "히든",
-        AbilityRarity.Unique => "유니크",
-        AbilityRarity.Epic => "에픽",
-        _ => "레어",
-    };
+        get
+        {
+            if (Kind is AbilityKind.BulletBounce or AbilityKind.BulletPierce)
+            {
+                return string.Empty;
+            }
+
+            return Rarity switch
+            {
+                AbilityRarity.Hidden => "히든",
+                AbilityRarity.Unique => "유니크",
+                AbilityRarity.Epic => "에픽",
+                _ => "레어",
+            };
+        }
+    }
+
+    public bool ShowsRarity => Kind is not (AbilityKind.BulletBounce or AbilityKind.BulletPierce);
 
     public Color RarityColor => Rarity switch
     {

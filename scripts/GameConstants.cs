@@ -20,7 +20,7 @@ public static class GameConstants
     public const float EnemySpeedIncreaseInterval = 6f;
     public const float EnemySpeedIncreasePerInterval = 2f;
     public const float EnemyBaseHealth = 1f;
-    public const float EnemyHealthPerSecond = 0.15f;
+    public const float EnemyHealthPerSecond = 0.075f;
     public const float EnemySize = 40f;
     public const float PentagonSize = 56f;
 
@@ -30,8 +30,6 @@ public static class GameConstants
     public const float PentagonExpMultiplier = 1.5f;
 
     public const float SpawnIntervalBase = 3.5f;
-    public const float SpawnIntervalMin = 0.65f;
-    public const float SpawnIntervalDecay = 0.018f;
     public const float SpawnWarmupDuration = 25f;
 
     public const float BulletSpeed = 330f;
@@ -41,25 +39,36 @@ public static class GameConstants
     public static readonly Vector2 EnemyMoveDirection = Vector2.Down;
 
     public const int ExpPerKill = 5;
-    // public const float BonusExpChance = 0.05f;
-    public const float BonusExpChance = 1f;
-    public const int BonusExpMultiplier = 5;
-    // public const int BonusExpMultiplier = 3;
+    public const float BonusExpChance = 0.05f;
+    public const int BonusExpMultiplier = 3;
+    //테스트용
+    // public const float BonusExpChance = 1f;
+    // public const int BonusExpMultiplier = 5;
+    //테스트용 끝
     public const int BaseExpToLevel = 18;
-    public const float MoveSpeedPerLevel = 20f;
+    public const float MoveSpeedPerLevel = 5f;
     public const float FireIntervalReductionPerLevel = 0.025f;
     public const float MinFireInterval = 0.12f;
     public const int BulletDamagePerLevel = 1;
 
     public const int AbilitySelectLevelInterval = 3;
+
+    // DEV: 출시 전 false로 바꾸거나 버튼 노드 삭제
+    public const bool DevLevelUpButtonEnabled = true;
+
+    public const float ItemDropChance = 0.08f;
+    public const float ItemHealDropChance = 0.05f;
+    public const float ItemMagnetRadius = 96f;
+    public const float ItemMagnetPullSpeed = 200f;
+    public static readonly Color HudStatsPanelBackground = new(0.1f, 0.1f, 0.14f, 0.28f);
     public const float CompanionDamageRatio = 0.5f;
-    public const float CompanionFireRatePerSecond = 0.5f;
+    public const float CompanionFireRatePerSecond = 0.6f;
     public const float CompanionFireInterval = 1f / CompanionFireRatePerSecond;
-    public const float HomingDamageRatio = 0.33f;
+    public const float HomingDamageMultiplier = 1.35f;
     public const float HomingFireRatePerSecond = 0.4f;
     public const float HomingFireInterval = 1f / HomingFireRatePerSecond;
     public const float HomingBulletSpeed = 420f;
-    public const float DiagonalShotAngleDegrees = 28f;
+    public const float DiagonalShotAngleDegrees = 30f;
     public const float CompanionFlankGap = 8f;
     public const float CompanionFlankSpacing = 18f;
 
@@ -103,8 +112,33 @@ public static class GameConstants
             return SpawnIntervalBase;
         }
 
-        var rampTime = gameTime - SpawnWarmupDuration;
-        return Math.Max(SpawnIntervalMin, SpawnIntervalBase - rampTime * SpawnIntervalDecay);
+        if (gameTime < 60f)
+        {
+            var ramp = (gameTime - SpawnWarmupDuration) / (60f - SpawnWarmupDuration);
+            return SpawnIntervalBase + (2.87f - SpawnIntervalBase) * ramp;
+        }
+
+        if (gameTime < 120f)
+        {
+            return 2.87f;
+        }
+
+        if (gameTime < 180f)
+        {
+            return 2.34f;
+        }
+
+        if (gameTime < 240f)
+        {
+            return 1.99f;
+        }
+
+        if (gameTime < 300f)
+        {
+            return 1.78f;
+        }
+
+        return 1.5f;
     }
 
     public static float GetEnemySpeed(float gameTime)

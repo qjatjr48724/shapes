@@ -9,13 +9,20 @@ public partial class HUD : CanvasLayer
     private const string ControlSetupPath = "ControlSetupOverlay/CenterContainer/PanelContainer/MarginContainer/VBox";
     private const string AbilitySelectCardsPath = "AbilitySelectOverlay/CenterContainer/PanelContainer/MarginContainer/VBox/CardsRow";
 
+    private const string StatsPanelPath = "TopBar/HBox/StatsPanel";
+    private const string StatsVBoxPath = "TopBar/HBox/StatsPanel/MarginContainer/LeftVBox";
+
     private Label _scoreLabel = null!;
     private Label _healthLabel = null!;
+    private Label _attackLabel = null!;
+    private Label _fireRateLabel = null!;
+    private Label _moveSpeedLabel = null!;
     private Label _timerLabel = null!;
     private Label _levelLabel = null!;
     private Label _expLabel = null!;
     private ProgressBar _expBar = null!;
     private Button _pauseButton = null!;
+    private Button _devLevelUpButton = null!;
     private ColorRect _pauseOverlay = null!;
     private ColorRect _controlSetupOverlay = null!;
     private VBoxContainer _pauseMenu = null!;
@@ -35,10 +42,14 @@ public partial class HUD : CanvasLayer
     public override void _Ready()
     {
         AddToGroup("hud");
-        _scoreLabel = GetNode<Label>("TopBar/HBox/LeftVBox/ScoreLabel");
-        _healthLabel = GetNode<Label>("TopBar/HBox/LeftVBox/HealthLabel");
+        _scoreLabel = GetNode<Label>($"{StatsVBoxPath}/ScoreLabel");
+        _healthLabel = GetNode<Label>($"{StatsVBoxPath}/HealthLabel");
+        _attackLabel = GetNode<Label>($"{StatsVBoxPath}/AttackLabel");
+        _fireRateLabel = GetNode<Label>($"{StatsVBoxPath}/FireRateLabel");
+        _moveSpeedLabel = GetNode<Label>($"{StatsVBoxPath}/MoveSpeedLabel");
         _timerLabel = GetNode<Label>("TimerLabel");
         _pauseButton = GetNode<Button>("TopBar/HBox/PauseButton");
+        _devLevelUpButton = GetNode<Button>("DevLevelUpButton");
         _levelLabel = GetNode<Label>("BottomBar/VBox/ExpRow/LevelLabel");
         _expLabel = GetNode<Label>("BottomBar/VBox/ExpRow/ExpLabel");
         _expBar = GetNode<ProgressBar>("BottomBar/VBox/ExpBar");
@@ -55,8 +66,11 @@ public partial class HUD : CanvasLayer
         _abilitySelectOverlay = GetNode<ColorRect>("AbilitySelectOverlay");
 
         ApplySafeAreaMargins();
+        ApplyStatsPanelStyle();
 
         _pauseButton.Pressed += OnPauseButtonPressed;
+        _devLevelUpButton.Pressed += OnDevLevelUpPressed;
+        _devLevelUpButton.Visible = GameConstants.DevLevelUpButtonEnabled;
         GetNode<Button>($"{PauseMenuPath}/ResumeButton").Pressed += OnResumePressed;
         GetNode<Button>($"{PauseMenuPath}/RestartButton").Pressed += OnRestartPressed;
         GetNode<Button>($"{PauseMenuPath}/SettingsButton").Pressed += OnSettingsPressed;
@@ -84,8 +98,10 @@ public partial class HUD : CanvasLayer
         {
             _player.HealthChanged += OnHealthChanged;
             _player.ExpChanged += OnExpChanged;
+            _player.StatsChanged += OnStatsChanged;
             OnHealthChanged(_player.CurrentHealth, _player.MaxHealth);
             OnExpChanged(_player.CurrentExp, _player.ExpToNextLevel, _player.Level);
+            OnStatsChanged();
         }
 
         OnScoreChanged(GameManager.Instance.Score);
@@ -120,6 +136,7 @@ public partial class HUD : CanvasLayer
     public override void _ExitTree()
     {
         _pauseButton.Pressed -= OnPauseButtonPressed;
+        _devLevelUpButton.Pressed -= OnDevLevelUpPressed;
 
         if (GameManager.Instance != null)
         {
@@ -142,6 +159,7 @@ public partial class HUD : CanvasLayer
         {
             _player.HealthChanged -= OnHealthChanged;
             _player.ExpChanged -= OnExpChanged;
+            _player.StatsChanged -= OnStatsChanged;
         }
     }
 
@@ -175,6 +193,12 @@ public partial class HUD : CanvasLayer
     private void OnPauseButtonPressed()
     {
         GameManager.Instance.TogglePause();
+    }
+
+    private void OnDevLevelUpPressed()
+    {
+        _player ??= GetTree().GetFirstNodeInGroup("player") as Player;
+        _player?.DevLevelUp();
     }
 
     private void OnResumePressed()
@@ -252,6 +276,9 @@ public partial class HUD : CanvasLayer
         _gameOverOverlay.Color = palette.GameOverOverlay;
         ApplyHudTextColor(_scoreLabel, palette.HudText);
         ApplyHudTextColor(_healthLabel, palette.HudText);
+        ApplyHudTextColor(_attackLabel, palette.HudText);
+        ApplyHudTextColor(_fireRateLabel, palette.HudText);
+        ApplyHudTextColor(_moveSpeedLabel, palette.HudText);
         ApplyHudTextColor(_timerLabel, palette.HudText);
         ApplyHudTextColor(_levelLabel, palette.HudText);
         ApplyHudTextColor(_expLabel, palette.HudText);
@@ -265,6 +292,24 @@ public partial class HUD : CanvasLayer
         var expFill = new StyleBoxFlat { BgColor = palette.ExpBarFill };
         _expBar.AddThemeStyleboxOverride("background", expBackground);
         _expBar.AddThemeStyleboxOverride("fill", expFill);
+    }
+
+    private void ApplyStatsPanelStyle()
+    {
+        var panel = GetNode<PanelContainer>(StatsPanelPath);
+        var style = new StyleBoxFlat
+        {
+            BgColor = GameConstants.HudStatsPanelBackground,
+            CornerRadiusTopLeft = 8,
+            CornerRadiusTopRight = 8,
+            CornerRadiusBottomRight = 8,
+            CornerRadiusBottomLeft = 8,
+            ContentMarginLeft = 12,
+            ContentMarginTop = 10,
+            ContentMarginRight = 12,
+            ContentMarginBottom = 10,
+        };
+        panel.AddThemeStyleboxOverride("panel", style);
     }
 
     private static void ApplyHudTextColor(Label label, Color color)
@@ -311,6 +356,14 @@ public partial class HUD : CanvasLayer
         bottomBar.AddThemeConstantOverride("margin_right", (int)(baseMargin + safeMarginSide));
         bottomBar.AddThemeConstantOverride("margin_bottom", (int)(baseMargin + safeMarginBottom));
 
+        if (GameConstants.DevLevelUpButtonEnabled)
+        {
+            _devLevelUpButton.OffsetLeft = -(112f + safeMarginSide);
+            _devLevelUpButton.OffsetRight = -(baseMargin + safeMarginSide);
+            _devLevelUpButton.OffsetTop = -(168f + safeMarginBottom);
+            _devLevelUpButton.OffsetBottom = -(96f + safeMarginBottom);
+        }
+
         _timerLabel.OffsetTop = baseMargin + safeMarginTop;
         _timerLabel.OffsetBottom = baseMargin + safeMarginTop + 36f;
     }
@@ -330,7 +383,19 @@ public partial class HUD : CanvasLayer
 
     private void OnHealthChanged(int current, int max)
     {
-        _healthLabel.Text = $"HP: {current}/{max}";
+        _healthLabel.Text = $"HP {current}/{max}";
+    }
+
+    private void OnStatsChanged()
+    {
+        if (_player == null)
+        {
+            return;
+        }
+
+        _attackLabel.Text = $"공격력 {_player.AttackDamage}";
+        _fireRateLabel.Text = $"공격속도 {_player.FireRatePerSecond:0.0}/s";
+        _moveSpeedLabel.Text = $"이동속도 {Mathf.RoundToInt(_player.MoveSpeed)}";
     }
 
     private void OnExpChanged(int currentExp, int expToNextLevel, int level)
@@ -367,6 +432,7 @@ public partial class HUD : CanvasLayer
     private void OnGameOver()
     {
         _pauseButton.Disabled = true;
+        _devLevelUpButton.Disabled = true;
         _controlSetupOverlay.Visible = false;
         _abilitySelectOverlay.Visible = false;
         _pauseOverlay.Visible = false;
@@ -412,6 +478,7 @@ public partial class HUD : CanvasLayer
         icon.SetKind(choice.Kind);
 
         var rarityLabel = GetNode<Label>($"{cardRoot}/RarityLabel");
+        rarityLabel.Visible = choice.ShowsRarity;
         rarityLabel.Text = choice.RarityLabel;
         rarityLabel.AddThemeColorOverride("font_color", choice.RarityColor);
 

@@ -10,7 +10,7 @@ public static class AbilityRoller
     private const float UniqueChance = 0.05f;
     private const float EpicChance = 0.13f;
 
-    public static AbilityChoice[] RollThreeChoices()
+    public static AbilityChoice[] RollThreeChoices(PlayerAbilities abilities)
     {
         var results = new List<AbilityChoice>();
         var usedKinds = new HashSet<AbilityKind>();
@@ -20,22 +20,22 @@ public static class AbilityRoller
         {
             attempts++;
             var rarity = RollRarity();
-            var kind = PickKind(rarity, usedKinds);
+            var kind = PickKind(rarity, usedKinds, abilities);
             if (kind == null)
             {
                 continue;
             }
 
             usedKinds.Add(kind.Value);
-            results.Add(CreateChoice(kind.Value, rarity));
+            results.Add(CreateChoice(kind.Value, rarity, abilities));
         }
 
         while (results.Count < 3)
         {
             var rarity = AbilityRarity.Rare;
-            var kind = PickKind(rarity, usedKinds) ?? AbilityKind.AttackSpeedBoost;
+            var kind = PickKind(rarity, usedKinds, abilities) ?? AbilityKind.AttackSpeedBoost;
             usedKinds.Add(kind);
-            results.Add(CreateChoice(kind, rarity));
+            results.Add(CreateChoice(kind, rarity, abilities));
         }
 
         return results.ToArray();
@@ -62,18 +62,29 @@ public static class AbilityRoller
         return AbilityRarity.Rare;
     }
 
-    private static AbilityKind? PickKind(AbilityRarity rarity, HashSet<AbilityKind> used)
+    private static AbilityKind? PickKind(AbilityRarity rarity, HashSet<AbilityKind> used, PlayerAbilities abilities)
     {
         var pool = new List<AbilityKind>
         {
             AbilityKind.StraightProjectile,
             AbilityKind.DiagonalProjectile,
             AbilityKind.AttackSpeedBoost,
+            AbilityKind.BulletSpeedBoost,
         };
 
         if (rarity >= AbilityRarity.Epic)
         {
             pool.Add(AbilityKind.HomingProjectile);
+        }
+
+        if (abilities.DiagonalCount > 0)
+        {
+            pool.Add(AbilityKind.BulletBounce);
+        }
+
+        if (abilities.HasStraightOrDiagonal)
+        {
+            pool.Add(AbilityKind.BulletPierce);
         }
 
         pool.RemoveAll(used.Contains);
@@ -118,7 +129,18 @@ public static class AbilityRoller
         };
     }
 
-    private static AbilityChoice CreateChoice(AbilityKind kind, AbilityRarity rarity)
+    public static float GetBulletSpeedBoost(AbilityRarity rarity)
+    {
+        return rarity switch
+        {
+            AbilityRarity.Hidden => 1f,
+            AbilityRarity.Unique => 0.5f,
+            AbilityRarity.Epic => 0.3f,
+            _ => 0.1f,
+        };
+    }
+
+    private static AbilityChoice CreateChoice(AbilityKind kind, AbilityRarity rarity, PlayerAbilities abilities)
     {
         return kind switch
         {
@@ -128,7 +150,7 @@ public static class AbilityRoller
                 Rarity = rarity,
                 Amount = GetProjectileAmount(rarity),
                 Title = "직진형 발사체",
-                Description = $"직선 탄환을 발사하는 발사체 {GetProjectileAmount(rarity)}개 추가\n(본체 공격력의 50%, 초당 0.5발)",
+                Description = $"직선 탄환을 발사하는 발사체 {GetProjectileAmount(rarity)}개 추가\n(본체 공격력의 50%, 초당 0.6발)",
             },
             AbilityKind.DiagonalProjectile => new AbilityChoice
             {
@@ -136,7 +158,7 @@ public static class AbilityRoller
                 Rarity = rarity,
                 Amount = GetProjectileAmount(rarity),
                 Title = "사선형 발사체",
-                Description = $"사선 탄환을 발사하는 발사체 {GetProjectileAmount(rarity)}개 추가\n(본체 공격력의 50%, 초당 0.5발)",
+                Description = $"사선 탄환을 발사하는 발사체 {GetProjectileAmount(rarity)}개 추가\n(본체 공격력의 50%, 초당 0.6발)",
             },
             AbilityKind.HomingProjectile => new AbilityChoice
             {
@@ -144,9 +166,39 @@ public static class AbilityRoller
                 Rarity = rarity,
                 Amount = GetHomingAmount(rarity),
                 Title = "유도탄",
-                Description = $"유도 발사체 {GetHomingAmount(rarity)}개 추가\n(본체 공격력의 33%, 초당 0.4발)",
+                Description = $"유도 발사체 {GetHomingAmount(rarity)}개 추가\n(본체 공격력의 135%, 초당 0.4발)",
+            },
+            AbilityKind.BulletSpeedBoost => CreateBulletSpeedChoice(rarity),
+            AbilityKind.BulletBounce => new AbilityChoice
+            {
+                Kind = kind,
+                Rarity = AbilityRarity.Rare,
+                Amount = 1,
+                Title = "발사체 튕기기",
+                Description = $"직진·사선 탄환이 좌우 벽에 반사됩니다.\n튕김 횟수 +1 (현재 {abilities.BounceCount}회)",
+            },
+            AbilityKind.BulletPierce => new AbilityChoice
+            {
+                Kind = kind,
+                Rarity = AbilityRarity.Rare,
+                Amount = 1,
+                Title = "발사체 관통",
+                Description = $"직진·사선 탄환이 적을 관통합니다.\n관통 횟수 +1 (현재 {abilities.PierceCount}회)",
             },
             _ => CreateStatBoostChoice(rarity),
+        };
+    }
+
+    private static AbilityChoice CreateBulletSpeedChoice(AbilityRarity rarity)
+    {
+        var boostPercent = Mathf.RoundToInt(GetBulletSpeedBoost(rarity) * 100f);
+        return new AbilityChoice
+        {
+            Kind = AbilityKind.BulletSpeedBoost,
+            Rarity = rarity,
+            Amount = 0,
+            Title = "발사체 속도 증가",
+            Description = $"발사체 속도 +{boostPercent}%",
         };
     }
 

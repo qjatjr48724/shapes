@@ -122,6 +122,7 @@ public partial class Enemy : CharacterBody2D
             ? Mathf.RoundToInt(GameConstants.ExpPerKill * GameConstants.PentagonExpMultiplier)
             : GameConstants.ExpPerKill;
         player?.AddExp(GameConstants.RollExpReward(baseExp));
+        ItemDropper.Drop(GetTree().CurrentScene, GlobalPosition);
         QueueFree();
     }
 

@@ -19,6 +19,9 @@ public partial class Player : CharacterBody2D
     public int ExpToNextLevel { get; private set; }
     public int CurrentHealth { get; private set; }
     public int MaxHealth { get; private set; }
+    public int AttackDamage => _bulletDamage;
+    public float FireRatePerSecond => _fireInterval > 0f ? 1f / _fireInterval : 0f;
+    public float MoveSpeed => _moveSpeed;
     public PlayerAbilities Abilities { get; } = new();
     public float GetCompanionFireInterval(AbilityKind kind)
     {
@@ -42,6 +45,17 @@ public partial class Player : CharacterBody2D
     private Node2D _companionsRoot = null!;
     private readonly List<Companion> _companions = new();
     private readonly Queue<PendingAbilitySelection> _abilitySelectionQueue = new();
+    private readonly List<ActiveItemBuff> _activeItemBuffs = new();
+    private float _damageBuffMultiplier = 1f;
+    private float _fireRateBuffMultiplier = 1f;
+    private float _moveSpeedBuffMultiplier = 1f;
+    private float _bulletSpeedBuffMultiplier = 1f;
+
+    private sealed class ActiveItemBuff
+    {
+        public ItemKind Kind { get; init; }
+        public float Remaining { get; set; }
+    }
 
     private readonly struct PendingAbilitySelection
     {
@@ -58,6 +72,9 @@ public partial class Player : CharacterBody2D
 
     [Signal]
     public delegate void LeveledUpEventHandler(int newLevel);
+
+    [Signal]
+    public delegate void StatsChangedEventHandler();
 
     public override void _Ready()
     {
@@ -94,6 +111,11 @@ public partial class Player : CharacterBody2D
         CurrentHealth = MaxHealth;
         Abilities.Reset();
         _abilitySelectionQueue.Clear();
+        _activeItemBuffs.Clear();
+        _damageBuffMultiplier = 1f;
+        _fireRateBuffMultiplier = 1f;
+        _moveSpeedBuffMultiplier = 1f;
+        _bulletSpeedBuffMultiplier = 1f;
         ApplyLevelStats();
         SyncCompanions();
     }
@@ -105,6 +127,38 @@ public partial class Player : CharacterBody2D
         SyncCompanions();
     }
 
+    public void ApplyItemBuff(ItemKind kind)
+    {
+        if (kind == ItemKind.HealthRecover)
+        {
+            if (CurrentHealth < MaxHealth)
+            {
+                CurrentHealth++;
+                EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
+            }
+
+            return;
+        }
+
+        var duration = kind.GetDuration();
+        var existing = _activeItemBuffs.Find(buff => buff.Kind == kind);
+        if (existing != null)
+        {
+            existing.Remaining = duration;
+        }
+        else
+        {
+            _activeItemBuffs.Add(new ActiveItemBuff
+            {
+                Kind = kind,
+                Remaining = duration,
+            });
+        }
+
+        RecalculateItemBuffMultipliers();
+        ApplyLevelStats();
+    }
+
     public override void _PhysicsProcess(double delta)
     {
         if (GameManager.Instance.IsGameOver || GameManager.Instance.IsPaused)
@@ -113,12 +167,14 @@ public partial class Player : CharacterBody2D
             return;
         }
 
+        var dt = (float)delta;
+        UpdateItemBuffs(dt);
+
         var input = MobileInput.GetMoveVector(this);
         Velocity = input * _moveSpeed;
         MoveAndSlide();
         ClampToViewport();
 
-        var dt = (float)delta;
         _fireCooldown -= dt;
         if (_fireCooldown <= 0f)
         {
@@ -158,6 +214,17 @@ public partial class Player : CharacterBody2D
         EmitSignal(SignalName.ExpChanged, CurrentExp, ExpToNextLevel, Level);
     }
 
+    public void DevLevelUp()
+    {
+        if (GameManager.Instance.IsGameOver
+            || GameManager.Instance.IsAbilitySelectActive)
+        {
+            return;
+        }
+
+        AddExp(Mathf.Max(1, ExpToNextLevel - CurrentExp));
+    }
+
     private void LevelUp()
     {
         Level++;
@@ -168,7 +235,7 @@ public partial class Player : CharacterBody2D
 
         if (Level % GameConstants.AbilitySelectLevelInterval == 0)
         {
-            EnqueueAbilitySelection(AbilityRoller.RollThreeChoices());
+            EnqueueAbilitySelection(AbilityRoller.RollThreeChoices(Abilities));
         }
     }
 
@@ -214,7 +281,7 @@ public partial class Player : CharacterBody2D
     {
         var levelBonus = Level - 1;
         var baseDamage = GameConstants.BulletDamage + levelBonus * GameConstants.BulletDamagePerLevel;
-        _bulletDamage = Mathf.Max(1, Mathf.RoundToInt(baseDamage * Abilities.AttackMultiplier));
+        _bulletDamage = Mathf.Max(1, Mathf.RoundToInt(baseDamage * Abilities.AttackMultiplier * _damageBuffMultiplier));
 
         var baseInterval = Mathf.Max(
             GameConstants.MinFireInterval,
@@ -222,10 +289,55 @@ public partial class Player : CharacterBody2D
         );
         _fireInterval = Mathf.Max(
             GameConstants.MinFireInterval,
-            baseInterval / Abilities.FireRateMultiplier
+            baseInterval / (Abilities.FireRateMultiplier * _fireRateBuffMultiplier)
         );
 
-        _moveSpeed = GameConstants.PlayerMoveSpeed + levelBonus * GameConstants.MoveSpeedPerLevel;
+        var baseMoveSpeed = GameConstants.PlayerMoveSpeed + levelBonus * GameConstants.MoveSpeedPerLevel;
+        _moveSpeed = baseMoveSpeed * _moveSpeedBuffMultiplier;
+        EmitSignal(SignalName.StatsChanged);
+    }
+
+    private void UpdateItemBuffs(float delta)
+    {
+        if (_activeItemBuffs.Count == 0)
+        {
+            return;
+        }
+
+        var changed = false;
+        for (var i = _activeItemBuffs.Count - 1; i >= 0; i--)
+        {
+            _activeItemBuffs[i].Remaining -= delta;
+            if (_activeItemBuffs[i].Remaining <= 0f)
+            {
+                _activeItemBuffs.RemoveAt(i);
+                changed = true;
+            }
+        }
+
+        if (!changed && _activeItemBuffs.Count > 0)
+        {
+            return;
+        }
+
+        RecalculateItemBuffMultipliers();
+        ApplyLevelStats();
+    }
+
+    private void RecalculateItemBuffMultipliers()
+    {
+        _damageBuffMultiplier = 1f;
+        _fireRateBuffMultiplier = 1f;
+        _moveSpeedBuffMultiplier = 1f;
+        _bulletSpeedBuffMultiplier = 1f;
+
+        foreach (var buff in _activeItemBuffs)
+        {
+            _damageBuffMultiplier *= buff.Kind.GetDamageMultiplier();
+            _fireRateBuffMultiplier *= buff.Kind.GetFireRateMultiplier();
+            _moveSpeedBuffMultiplier *= buff.Kind.GetMoveSpeedMultiplier();
+            _bulletSpeedBuffMultiplier *= buff.Kind.GetBulletSpeedMultiplier();
+        }
     }
 
     public void FireFromCompanion(Companion companion)
@@ -238,13 +350,13 @@ public partial class Player : CharacterBody2D
         switch (companion.Kind)
         {
             case AbilityKind.StraightProjectile:
-                SpawnBullet(spawnPosition, GameConstants.PlayerShootDirection, companionDamage);
+                SpawnBullet(spawnPosition, GameConstants.PlayerShootDirection, companionDamage, despawnAtScreenTop: true);
                 break;
             case AbilityKind.DiagonalProjectile:
                 var direction = companion.GetDiagonalSideIndex() % 2 == 0
                     ? GameConstants.PlayerShootDirection.Rotated(-diagonalAngle)
                     : GameConstants.PlayerShootDirection.Rotated(diagonalAngle);
-                SpawnBullet(spawnPosition, direction, companionDamage);
+                SpawnBullet(spawnPosition, direction, companionDamage, despawnAtScreenTop: true);
                 break;
             case AbilityKind.HomingProjectile:
                 SpawnHomingBullet(spawnPosition, homingDamage);
@@ -259,12 +371,12 @@ public partial class Player : CharacterBody2D
 
     private int GetHomingDamage()
     {
-        return Mathf.Max(1, Mathf.RoundToInt(_bulletDamage * GameConstants.HomingDamageRatio));
+        return Mathf.Max(1, Mathf.RoundToInt(_bulletDamage * GameConstants.HomingDamageMultiplier));
     }
 
     private void FireMain()
     {
-        SpawnBullet(GlobalPosition, GameConstants.PlayerShootDirection, _bulletDamage);
+        SpawnBullet(GlobalPosition, GameConstants.PlayerShootDirection, _bulletDamage, despawnAtScreenTop: true);
     }
 
     private void SyncCompanions()
@@ -318,7 +430,7 @@ public partial class Player : CharacterBody2D
         return kinds;
     }
 
-    private void SpawnBullet(Vector2 position, Vector2 direction, int damage)
+    private void SpawnBullet(Vector2 position, Vector2 direction, int damage, bool despawnAtScreenTop = false)
     {
         if (BulletScene == null)
         {
@@ -328,7 +440,23 @@ public partial class Player : CharacterBody2D
         var bullet = BulletScene.Instantiate<Bullet>();
         GetTree().CurrentScene.AddChild(bullet);
         bullet.GlobalPosition = position;
-        bullet.Initialize(direction, damage);
+        bullet.Initialize(
+            direction,
+            damage,
+            despawnAtScreenTop,
+            GetBulletSpeed(),
+            Abilities.PierceCount,
+            Abilities.BounceCount);
+    }
+
+    private float GetBulletSpeed()
+    {
+        return GameConstants.BulletSpeed * _bulletSpeedBuffMultiplier * Abilities.BulletSpeedMultiplier;
+    }
+
+    private float GetHomingBulletSpeed()
+    {
+        return GameConstants.HomingBulletSpeed * _bulletSpeedBuffMultiplier * Abilities.BulletSpeedMultiplier;
     }
 
     private void SpawnHomingBullet(Vector2 position, int damage)
@@ -341,7 +469,7 @@ public partial class Player : CharacterBody2D
         var bullet = HomingBulletScene.Instantiate<HomingBullet>();
         GetTree().CurrentScene.AddChild(bullet);
         bullet.GlobalPosition = position;
-        bullet.Initialize(damage);
+        bullet.Initialize(damage, GetHomingBulletSpeed());
     }
 
     private void ClampToViewport()
@@ -432,5 +560,6 @@ public partial class Player : CharacterBody2D
     {
         EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
         EmitSignal(SignalName.ExpChanged, CurrentExp, ExpToNextLevel, Level);
+        EmitSignal(SignalName.StatsChanged);
     }
 }

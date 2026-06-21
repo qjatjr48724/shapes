@@ -6,4 +6,7 @@ public enum AbilityKind
     DiagonalProjectile,
     HomingProjectile,
     AttackSpeedBoost,
+    BulletSpeedBoost,
+    BulletBounce,
+    BulletPierce,
 }

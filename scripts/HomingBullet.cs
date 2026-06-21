@@ -4,8 +4,8 @@ namespace Shapes;
 
 public partial class HomingBullet : Area2D
 {
-    private float _lifetime;
     private int _damage = 1;
+    private float _speed = GameConstants.HomingBulletSpeed;
     private Node2D? _target;
 
     public override void _Ready()
@@ -23,9 +23,10 @@ public partial class HomingBullet : Area2D
         }
     }
 
-    public void Initialize(int damage)
+    public void Initialize(int damage, float speed = GameConstants.HomingBulletSpeed)
     {
         _damage = damage;
+        _speed = speed;
         _target = FindTarget();
     }
 
@@ -53,18 +54,21 @@ public partial class HomingBullet : Area2D
             direction = (_target.GlobalPosition - GlobalPosition).Normalized();
         }
 
-        GlobalPosition += direction * GameConstants.HomingBulletSpeed * (float)delta;
+        GlobalPosition += direction * _speed * (float)delta;
         Rotation = direction.Angle() + Mathf.Pi / 2f;
 
-        _lifetime += (float)delta;
-        if (_lifetime >= GameConstants.BulletLifetime)
+        var rect = GetViewport().GetVisibleRect();
+        const float bulletRadius = 7f;
+
+        if (GlobalPosition.Y <= rect.Position.Y + bulletRadius)
         {
             QueueFree();
             return;
         }
 
-        var rect = GetViewport().GetVisibleRect();
-        if (!rect.HasPoint(GlobalPosition))
+        if (GlobalPosition.X < rect.Position.X - bulletRadius
+            || GlobalPosition.X > rect.End.X + bulletRadius
+            || GlobalPosition.Y > rect.End.Y + bulletRadius)
         {
             QueueFree();
         }
